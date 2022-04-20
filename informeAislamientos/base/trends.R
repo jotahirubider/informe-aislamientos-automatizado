@@ -25,7 +25,7 @@ plt_aisl_totales <- indicadores_resultados%>%
   theme_bw() +
   # scale_x_continuous(breaks = c(1:52)) +
   xlab("Fecha") +
-  ylab("NÂº aislamientos") +
+  ylab("Nº aislamientos") +
   labs(color="") +
   scale_color_discrete(labels=c("Totales","SARS-CoV-2"))+
   scale_x_datetime(date_breaks = "1 month",date_labels = "%b-%y")
@@ -44,8 +44,9 @@ plt_pa_global <- indicadores_resultados%>%
   geom_point(aes(y=pa_value,
                  color=pa_name)) +
   theme_bw() +
-  ylab("PresiÃ³n de aislamientos (%)") +
-  scale_color_discrete(labels=c("SARS-CoV-2","CrÃ­ticos","Global","HospitalizaciÃ³n"))+
+  ylab("Presión de aislamientos(%)") +
+  xlab("Fecha") +
+  scale_color_discrete(labels=c("SARS-CoV-2","Críticos","Global","Hospitalización"))+
   labs(color="") +
   scale_x_datetime(date_breaks = "1 month",date_labels = "%b-%y")
 
@@ -70,7 +71,7 @@ plt_pa_nosocomial <- indicadores_resultados %>%
               se=T) +
   theme_bw() +
   # scale_x_continuous(breaks = c(1:52)) +
-  ylab("PresiÃ³n de aislamientos (%)") +
+  ylab("Presión de aislamientos(%)") +
   xlab("Fecha") +
   scale_x_datetime(date_breaks = "1 month",date_labels = "%b-%y")
 
@@ -111,7 +112,7 @@ plt_mmr <- mr_indicadores %>%
              labeller = labeller(pa_mr_name=mr_names)  ) +
   theme_bw() +
   xlab("Fecha") +
-  ylab("PresiÃ³n de aislamientos (%)") +
+  ylab("Presión de aislamientos(%)") +
   labs(color="Microorganismo") +
   scale_x_datetime(date_breaks = "1 month",date_labels = "%b-%y") +
   theme(axis.text.x = element_text(angle=90),

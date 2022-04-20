@@ -4,3 +4,7 @@ DATA/
 *.pdf
 *.exe
 *resultados*
+*.log
+*.doc*
+*.lnk
+*.Rhistory

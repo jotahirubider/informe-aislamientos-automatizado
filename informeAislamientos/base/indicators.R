@@ -152,7 +152,7 @@ indicadores_tabla <- indicadores_resultado_actual %>%
   select(indicador,calculo,resultado) %>% 
   # PASA TABLA A FORMATO KABLE
   kable(#format="latex",
-    col.names = c("Indicador","C?lculo","Resultado"),
+    col.names = c("Indicador","Cálculo","Resultado"),
     linesep="\n\n\n\n") %>% 
   row_spec(0,bold=TRUE) %>% 
   kable_styling(latex_options = c("scale_down","hold_position"))

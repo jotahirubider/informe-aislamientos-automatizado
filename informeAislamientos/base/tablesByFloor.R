@@ -41,7 +41,7 @@ plantas_print <- function(listado_plantas,print_tb=TRUE) {
            select(-plantaActual) %>% 
            kable(x = .,
                  col.names = c(
-                   "Cama","Tipo de aislamiento","Origen","Microorganismo","Fecha 1?(+)"),
+                   "Cama","Tipo de aislamiento","Origen","Microorganismo","Fecha 1º(+)"),
                  caption = sprintf("\\textbf{%s}",.y)) %>% 
            row_spec(0,bold=TRUE) %>% 
            kable_styling(latex_options = c("hold_position")
@@ -107,7 +107,7 @@ plantas_print <- function(listado_plantas,print_tb=TRUE) {
                                       p_camas_aisladas,
                                       p_nosocomial),
                             .f = ~   tibble(
-                              "N? Camas"=..1,
+                              "Nº Camas"=..1,
                               "% Camas aisladas"=..2,
                               "% Nosocomiales"=..3)) %>% 
     map(
