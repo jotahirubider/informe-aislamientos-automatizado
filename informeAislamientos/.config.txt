@@ -1,0 +1,12 @@
+###############################################################################
+############################### CONFIGURATION FILE ############################
+###############################################################################
+
+# En este archivo se configuran las rutas de las bases de datos para crear los informes
+# Nota: todas las rutas deben escribirse con "/". No utilizar barra invertida "\"
+
+# Ruta archivo Access .mdb (IRAS.mdb)
+ruta_mdb <- "D:/Escritorio/new_MMR/IRAS/IRAS.mdb"
+
+# Otras variables a configurar externas
+
