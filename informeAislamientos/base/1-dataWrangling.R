@@ -3,11 +3,12 @@
 # CARGAR PAQUETES NECESARIOS
 pacman::p_load(tidyverse,lubridate,knitr,RODBC,kableExtra,labelled,scales,purrr)
 
+# CARGAR CONSTANTES 
+source("utils/constants.R")
+
 # CARGAR FUNCIONES UTILES
 source("utils/funs.R")
 
-# CARGAR RUTAS Y VARIABLES DE CONFIGURACION
-# source(".config.txt")
 
 
 # CARGA DE BBDD ----------------------------------------------------------
@@ -106,8 +107,9 @@ micro2 <- micro %>% pivot_wider(names_from = name,values_from = value) %>%
     mecanismoMR=case_when(
       mecanismoMR=="R = 3 grupos"              ~ "MR",
       mecanismoMR=="Carbapenemasa"             ~ "p. de carbapenemasa",
+      grepl("BLEE",mecanismoMR)                ~ "BLEE",
       startsWith(mecanismoMR, "R meticilina")  ~ "R meticilina"),
-    # Correci?n de nombre de Clostridioides difficile
+    # Correción de nombre de Clostridioides difficile
     microorganismo=if_else(microorganismo=="Clostridium difficile",
                            "Clostridioides difficile",
                            microorganismo),
@@ -125,10 +127,77 @@ micro2 <- micro %>% pivot_wider(names_from = name,values_from = value) %>%
 
 # GENERAR TABLAS PARA INFORME POR PLANTA
 tablas_informe <- activos %>% 
-  select(GlobalRecordId,plantaActual,camaActual,tipoAislamiento,origenInfeccion) %>% 
+  select(GlobalRecordId,plantaActual,aNHC,
+         camaActual,motivoAislamiento,
+         tipoAislamiento,origenInfeccion) %>% 
+  rename(NHC=aNHC) %>% 
   left_join(micro2,by="GlobalRecordId") %>%
   select(-GlobalRecordId) %>% 
   mutate(tipoAislamiento=str_to_title(tipoAislamiento),
-         origenInfeccion=str_to_sentence(origenInfeccion))
-try(expr = rm(activos,micro,micro2),silent=TRUE)
+         origenInfeccion=str_to_sentence(origenInfeccion),
+         motivoAislamiento=str_to_title(motivoAislamiento))
 
+
+# GENERAR MAPA DE CAMAS ---------------------------------------------------
+
+tabla_mapa_camas <- activos %>% 
+  select(GlobalRecordId,plantaActual,camaActual,motivoAislamiento,
+         aNHC) %>%
+  rename(NHC=aNHC) %>% 
+  left_join(micro2,by="GlobalRecordId") %>%
+  select(-GlobalRecordId) %>% 
+  mutate(motivoAislamiento=str_to_title(motivoAislamiento)) %>%
+  filter(str_detect(microorganismo,"Virus|virus", negate = TRUE)) %>% 
+  filter(
+    str_detect(microorganismo,
+               pattern = "BLEE|MR|carbapenemasa|vancomicina|difficile") |
+      str_ends(microorganismo,
+               pattern = "R meticilina") |
+      str_detect(microorganismo,
+                 pattern = "Candida auris") |
+      str_detect(microorganismo,
+                 pattern = "Serratia marcescens"))
+
+total_pacientes <- tabla_mapa_camas %>% 
+  distinct(NHC, .keep_all = T) %>% 
+  group_by(plantaActual) %>% 
+  summarise(n=n()) %>% 
+  arrange(plantaActual) %>% 
+  select(n) %>% 
+  rename(`Nº ptes. aislados`=n)
+
+total_por_unidad <- tabla_mapa_camas %>% 
+  select(plantaActual,microorganismo) %>% 
+  mutate(
+    microorganismo=case_when(
+      microorganismo=="Candida auris"           ~ "C. auris",
+      str_ends(microorganismo,"MR")             ~ "MMR",
+      str_ends(microorganismo, "carbapenemasa") ~ "EPC",
+      str_ends(microorganismo, "BLEE")          ~ "BLEE",
+      str_ends(microorganismo, "R meticilina")  ~ "R meticilina",
+      str_ends(microorganismo, "difficile")     ~ "C. difficile",
+      str_detect(microorganismo, "Serratia marcescens") ~ "Otros"
+    )
+  ) %>% 
+  # CALCULAR TOTALES A LA DERECHA
+  group_by(plantaActual,microorganismo) %>% 
+  summarise(n=n(), .groups = "keep") %>% 
+  pivot_wider(names_from = microorganismo, values_from = n) %>% 
+  rowwise() %>% 
+  mutate(`Total por Unidad`= sum(across(c(1:7)), na.rm = T)) %>% 
+  ungroup() %>% 
+  arrange(plantaActual) %>% 
+  bind_cols(total_pacientes)
+
+total_por_mmr <- total_por_unidad %>% summarise(
+  across(.cols = -c(plantaActual),.fns = ~sum(... = .,na.rm = T))) %>% 
+  mutate(plantaActual="Total por MMR") %>% 
+  relocate(plantaActual) %>% 
+  arrange(plantaActual)
+
+tabla_cruzada <- bind_rows(total_por_unidad,total_por_mmr) %>% 
+  rename(Planta=plantaActual) %>% 
+  relocate(`Nº ptes. aislados`)
+
+try(expr = rm(activos,micro,micro2,total_pacientes,
+              total_por_mmr,total_por_unidad),silent=TRUE)

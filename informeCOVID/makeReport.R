@@ -1,9 +1,9 @@
 pacman::p_load(here,lubridate)
 setwd(here())
 Sys.setenv(RSTUDIO_PANDOC="C:/Program Files/RStudio/bin/pandoc")
-filename <- paste0(today(),"-Informe-Aislamientos.pdf")
+filename <- paste0(today(),"-Informe-Situacion-COVID.pdf")
 rmarkdown::render(
-  input = "base/0-isolationReport.Rmd",
+  input = "base/0-covidReport.Rmd",
   output_format = "pdf_document",
   output_file = filename,
   output_dir = "informesSalida",

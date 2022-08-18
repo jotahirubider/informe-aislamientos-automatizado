@@ -38,15 +38,19 @@ plantas_print <- function(listado_plantas,print_tb=TRUE) {
     map2(.x = .,
          .y= names(.),
          .f = ~ .x %>% 
-           select(-plantaActual) %>% 
+           select(camaActual, NHC, motivoAislamiento,
+                  tipoAislamiento, origenInfeccion, 
+                  microorganismo, fechaMuestra
+                  ) %>% 
            kable(x = .,
                  col.names = c(
-                   "Cama","Tipo de aislamiento","Origen","Microorganismo","Fecha 1º(+)"),
+                   "Cama","NHC","Clínica",
+                   "Tipo aisl.","Origen",
+                   "Microorganismo","Fecha 1º(+)"),
                  caption = sprintf("\\textbf{%s}",.y)) %>% 
            row_spec(0,bold=TRUE) %>% 
-           kable_styling(latex_options = c("hold_position")
-           ) %>%
-           collapse_rows(columns = c(1,2,3)))
+           kable_styling(latex_options = c("hold_position")) %>%
+           collapse_rows(columns = c(1,2,4,5)))
   # CALCULO NUMERO DE AISLADOS POR PLANTA
   n_aislados <- plantas_data %>% 
     map(.f = ~ .x %>% 
@@ -126,6 +130,4 @@ plantas_print <- function(listado_plantas,print_tb=TRUE) {
     tables %>% unlist() %>% paste0(collapse = "\n") %>% cat()
   }
 }
-
-
 
